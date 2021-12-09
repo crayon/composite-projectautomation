@@ -15,12 +15,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Get project data
-      env:
-        GITHUB_TOKEN: ${{ secrets.GHBOT_TOKEN }}
-        ORGANIZATION: crayon
-        PROJECT_NUMBER: ${{ inputs.project_number }}
-      run: |
+    - run: |
         gh api graphql -f query='
           query($org: String!, $number: Int!) {
             organization(login: $org){
@@ -37,17 +32,22 @@ runs:
             }
           }' -f org=$ORGANIZATION -F number=$PROJECT_NUMBER > project_data.json
         echo 'PROJECT_ID='$(jq '.data.organization.projectNext.id' project_data.json) >> $GITHUB_ENV
+    name: Get project data
+    env:
+      GITHUB_TOKEN: ${{ secrets.GHBOT_TOKEN }}
+      ORGANIZATION: crayon
+      PROJECT_NUMBER: ${{ inputs.project_number }}
 
     - name: Add to project
       env:
         GITHUB_TOKEN: ${{ secrets.GHBOT_TOKEN }}
-        ID: ${{ github.event.pull_request.node_id }}
+        ID: ${{ inputs.id }}
       run: |
         gh api graphql -f query='
-          mutation($project:ID!, $pr:ID!) {
-            addProjectNextItem(input: {projectId: $project, contentId: $pr}) {
+          mutation($project:ID!, $id:ID!) {
+            addProjectNextItem(input: {projectId: $project, contentId: $id}) {
               projectNextItem {
                 id
               }
             }
-          }' -f project=$PROJECT_ID -f pr=$PR_ID --jq '.data.addProjectNextItem.projectNextItem.id'
+          }' -f project=$PROJECT_ID -f id=$ID --jq '.data.addProjectNextItem.projectNextItem.id'
