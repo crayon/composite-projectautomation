@@ -4,7 +4,7 @@ inputs:
   project_number:
     description: 'The ID of the projects you want to use. Can be found in the URL for your project.'
     required: true
-  id:
+  task_id:
     description: 'The ID from the issue or pull request.'
     required: true
   repo-token:
@@ -13,6 +13,11 @@ inputs:
     
 runs:
   using: "composite"
+  env:
+    GITHUB_TOKEN: ${{ inputs.repo-token }}
+    ORGANIZATION: 'crayon'
+    PROJECT_NUMBER: ${{ inputs.project_number }}
+    TASK_ID: ${{ inputs.task_id }}
   steps:
   - name: 'Get project data'
     shell: bash
@@ -44,4 +49,4 @@ runs:
               id
             }
           }
-        }' -f project=$PROJECT_ID -f id=$ID --jq '.data.addProjectNextItem.projectNextItem.id'
+        }' -f project=$PROJECT_ID -f id=$TASK_ID --jq '.data.addProjectNextItem.projectNextItem.id'
