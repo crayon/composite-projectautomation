@@ -16,7 +16,7 @@ runs:
     - name: 'Get project data'
       shell: bash
       env:
-        GITHUB_TOKEN: ${{ inputs.repo-token }}
+        GITHUB_TOKEN: ${{ secrets.GHBOT_TOKEN }}
         ORGANIZATION: 'crayon'
         PROJECT_NUMBER: ${{ inputs.project_number }}
       run: |
@@ -40,7 +40,7 @@ runs:
     - name: 'Add to project'
       shell: bash
       env:
-        GITHUB_TOKEN: ${{ inputs.repo-token }}
+        GITHUB_TOKEN: ${{ secrets.GHBOT_TOKEN }}
         TASK_ID: ${{ inputs.task_id }}
       run: |
         gh api graphql -f query='
