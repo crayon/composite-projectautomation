@@ -16,39 +16,39 @@ runs:
   env:
     GITHUB_TOKEN: ${{ inputs.repo-token }}
   steps:
-    - name: 'Get project data'
-      shell: bash
-      env:
-        ORGANIZATION: 'crayon'
-        PROJECT_NUMBER: ${{ inputs.project_number }}
-      run: |
-          gh api graphql -f query='
-            query($org: String!, $number: Int!) {
-              organization(login: $org){
-                projectNext(number: $number) {
-                  id
-                  fields(first:20) {
-                    nodes {
-                      id
-                      name
-                      settings
-                    }
+  - name: 'Get project data'
+    shell: bash
+    env:
+      ORGANIZATION: 'crayon'
+      PROJECT_NUMBER: ${{ inputs.project_number }}
+    run: |
+        gh api graphql -f query='
+          query($org: String!, $number: Int!) {
+            organization(login: $org){
+              projectNext(number: $number) {
+                id
+                fields(first:20) {
+                  nodes {
+                    id
+                    name
+                    settings
                   }
                 }
               }
-            }' -f org=$ORGANIZATION -F number=$PROJECT_NUMBER > project_data.json
-          echo 'PROJECT_ID='$(jq '.data.organization.projectNext.id' project_data.json) >> $GITHUB_ENV
-    
-    - name: 'Add to project'
-      shell: bash
-      env:
-        ID: ${{ inputs.id }}
-      run: |
-        gh api graphql -f query='
-          mutation($project:ID!, $id:ID!) {
-            addProjectNextItem(input: {projectId: $project, contentId: $id}) {
-              projectNextItem {
-                id
-              }
             }
-          }' -f project=$PROJECT_ID -f id=$ID --jq '.data.addProjectNextItem.projectNextItem.id'
+          }' -f org=$ORGANIZATION -F number=$PROJECT_NUMBER > project_data.json
+        echo 'PROJECT_ID='$(jq '.data.organization.projectNext.id' project_data.json) >> $GITHUB_ENV
+
+  - name: 'Add to project'
+    shell: bash
+    env:
+      ID: ${{ inputs.id }}
+    run: |
+      gh api graphql -f query='
+        mutation($project:ID!, $id:ID!) {
+          addProjectNextItem(input: {projectId: $project, contentId: $id}) {
+            projectNextItem {
+              id
+            }
+          }
+        }' -f project=$PROJECT_ID -f id=$ID --jq '.data.addProjectNextItem.projectNextItem.id'
