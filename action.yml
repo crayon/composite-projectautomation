@@ -1,11 +1,14 @@
 name: Project Automation
 description: 'When a new issue or pull request is added to the repository, this action adds that to a project.'
 inputs:
-  project_number:  # id of input
+  project_number:
     description: 'The ID of the projects you want to use. Can be found in the URL for your project.'
     required: true
   id:
     description: 'The ID from the issue or pull request.'
+    required: true
+  repo-token:
+    description: 'Token used for automation.'
     required: true
 #outputs:
 #  random-number:
