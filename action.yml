@@ -13,11 +13,6 @@ inputs:
     
 runs:
   using: "composite"
-  env:
-    GITHUB_TOKEN: ${{ inputs.repo-token }}
-    ORGANIZATION: 'crayon'
-    PROJECT_NUMBER: ${{ inputs.project_number }}
-    ID: ${{ inputs.id }}
   steps:
   - name: 'Get project data'
     shell: bash
