@@ -1,0 +1,53 @@
+name: Project Automation
+description: 'When a new issue or pull request is added to the repository, this action adds that to a project.'
+inputs:
+  project_number:  # id of input
+    description: 'The ID of the projects you want to use. Can be found in the URL for your project.'
+    required: true
+  id:
+    description: 'The ID from the issue or pull request.'
+    required: true
+#outputs:
+#  random-number:
+#    description: "Random number"
+#    value: ${{ steps.random-number-generator.outputs.random-id }}
+
+runs:
+  using: "composite"
+    steps:
+      - name: Get project data
+        env:
+          GITHUB_TOKEN: ${{ secrets.GHBOT_TOKEN }}
+          ORGANIZATION: crayon
+          PROJECT_NUMBER: ${{ inputs.project_number }}
+        run: |
+          gh api graphql -f query='
+            query($org: String!, $number: Int!) {
+              organization(login: $org){
+                projectNext(number: $number) {
+                  id
+                  fields(first:20) {
+                    nodes {
+                      id
+                      name
+                      settings
+                    }
+                  }
+                }
+              }
+            }' -f org=$ORGANIZATION -F number=$PROJECT_NUMBER > project_data.json
+          echo 'PROJECT_ID='$(jq '.data.organization.projectNext.id' project_data.json) >> $GITHUB_ENV
+          
+      - name: Add to project
+        env:
+          GITHUB_TOKEN: ${{ secrets.GHBOT_TOKEN }}
+          ID: ${{ github.event.pull_request.node_id }}
+        run: |
+          gh api graphql -f query='
+            mutation($project:ID!, $pr:ID!) {
+              addProjectNextItem(input: {projectId: $project, contentId: $pr}) {
+                projectNextItem {
+                  id
+                }
+              }
+            }' -f project=$PROJECT_ID -f pr=$PR_ID --jq '.data.addProjectNextItem.projectNextItem.id'
