@@ -1,4 +1,4 @@
-name: Project Automation
+name: 'Project Automation'
 description: 'When a new issue or pull request is added to the repository, this action adds that to a project.'
 inputs:
   project_number:
@@ -10,15 +10,11 @@ inputs:
   repo-token:
     description: 'Token used for automation.'
     required: true
-#outputs:
-#  random-number:
-#    description: "Random number"
-#    value: ${{ steps.random-number-generator.outputs.random-id }}
 
 runs:
   using: "composite"
   env:
-    GITHUB_TOKEN: ${{ secrets.GHBOT_TOKEN }}
+    GITHUB_TOKEN: ${{ inputs.repo-token }}
   steps:
     - run: |
         gh api graphql -f query='
@@ -37,13 +33,13 @@ runs:
             }
           }' -f org=$ORGANIZATION -F number=$PROJECT_NUMBER > project_data.json
         echo 'PROJECT_ID='$(jq '.data.organization.projectNext.id' project_data.json) >> $GITHUB_ENV
-    name: Get project data
+    name: 'Get project data'
     shell: bash
     env:
-      ORGANIZATION: crayon
+      ORGANIZATION: 'crayon'
       PROJECT_NUMBER: ${{ inputs.project_number }}
 
-    - name: Add to project
+    - name: 'Add to project'
       shell: bash
       env:
         ID: ${{ inputs.id }}
