@@ -10,35 +10,35 @@ inputs:
   repo-token:
     description: 'Token used for automation.'
     required: true
-
+    
 runs:
   using: "composite"
   env:
     GITHUB_TOKEN: ${{ inputs.repo-token }}
   steps:
-    - run: |
-        gh api graphql -f query='
-          query($org: String!, $number: Int!) {
-            organization(login: $org){
-              projectNext(number: $number) {
-                id
-                fields(first:20) {
-                  nodes {
-                    id
-                    name
-                    settings
+    - name: 'Get project data'
+      shell: bash
+      env:
+        ORGANIZATION: 'crayon'
+        PROJECT_NUMBER: ${{ inputs.project_number }}
+      run: |
+          gh api graphql -f query='
+            query($org: String!, $number: Int!) {
+              organization(login: $org){
+                projectNext(number: $number) {
+                  id
+                  fields(first:20) {
+                    nodes {
+                      id
+                      name
+                      settings
+                    }
                   }
                 }
               }
-            }
-          }' -f org=$ORGANIZATION -F number=$PROJECT_NUMBER > project_data.json
-        echo 'PROJECT_ID='$(jq '.data.organization.projectNext.id' project_data.json) >> $GITHUB_ENV
-    name: 'Get project data'
-    shell: bash
-    env:
-      ORGANIZATION: 'crayon'
-      PROJECT_NUMBER: ${{ inputs.project_number }}
-
+            }' -f org=$ORGANIZATION -F number=$PROJECT_NUMBER > project_data.json
+          echo 'PROJECT_ID='$(jq '.data.organization.projectNext.id' project_data.json) >> $GITHUB_ENV
+    
     - name: 'Add to project'
       shell: bash
       env:
