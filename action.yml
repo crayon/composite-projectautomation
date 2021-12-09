@@ -9,17 +9,16 @@ inputs:
     required: true
   repo-token:
     description: 'Token used for automation.'
-    required: true    
+    required: true
 runs:
   using: "composite"
-  env:
-    GITHUB_TOKEN: ${{ inputs.repo-token }}
-    ORGANIZATION: 'crayon'
-    PROJECT_NUMBER: ${{ inputs.project_number }}
-    TASK_ID: ${{ inputs.task_id }}
   steps:
     - name: 'Get project data'
       shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.repo-token }}
+        ORGANIZATION: 'crayon'
+        PROJECT_NUMBER: ${{ inputs.project_number }}
       run: |
           gh api graphql -f query='
             query($org: String!, $number: Int!) {
@@ -40,6 +39,9 @@ runs:
 
     - name: 'Add to project'
       shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.repo-token }}
+        TASK_ID: ${{ inputs.task_id }}
       run: |
         gh api graphql -f query='
           mutation($project:ID!, $id:ID!) {
