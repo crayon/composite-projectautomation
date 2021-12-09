@@ -14,6 +14,8 @@ inputs:
 
 runs:
   using: "composite"
+  env:
+    GITHUB_TOKEN: ${{ secrets.GHBOT_TOKEN }}
   steps:
     - run: |
         gh api graphql -f query='
@@ -33,14 +35,14 @@ runs:
           }' -f org=$ORGANIZATION -F number=$PROJECT_NUMBER > project_data.json
         echo 'PROJECT_ID='$(jq '.data.organization.projectNext.id' project_data.json) >> $GITHUB_ENV
     name: Get project data
+    shell: bash
     env:
-      GITHUB_TOKEN: ${{ secrets.GHBOT_TOKEN }}
       ORGANIZATION: crayon
       PROJECT_NUMBER: ${{ inputs.project_number }}
 
     - name: Add to project
+      shell: bash
       env:
-        GITHUB_TOKEN: ${{ secrets.GHBOT_TOKEN }}
         ID: ${{ inputs.id }}
       run: |
         gh api graphql -f query='
