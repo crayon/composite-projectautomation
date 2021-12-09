@@ -9,8 +9,7 @@ inputs:
     required: true
   repo-token:
     description: 'Token used for automation.'
-    required: true
-    
+    required: true    
 runs:
   using: "composite"
   env:
@@ -19,34 +18,34 @@ runs:
     PROJECT_NUMBER: ${{ inputs.project_number }}
     TASK_ID: ${{ inputs.task_id }}
   steps:
-  - name: 'Get project data'
-    shell: bash
-    run: |
-        gh api graphql -f query='
-          query($org: String!, $number: Int!) {
-            organization(login: $org){
-              projectNext(number: $number) {
-                id
-                fields(first:20) {
-                  nodes {
-                    id
-                    name
-                    settings
+    - name: 'Get project data'
+      shell: bash
+      run: |
+          gh api graphql -f query='
+            query($org: String!, $number: Int!) {
+              organization(login: $org){
+                projectNext(number: $number) {
+                  id
+                  fields(first:20) {
+                    nodes {
+                      id
+                      name
+                      settings
+                    }
                   }
                 }
               }
-            }
-          }' -f org=$ORGANIZATION -F number=$PROJECT_NUMBER > project_data.json
-        echo 'PROJECT_ID='$(jq '.data.organization.projectNext.id' project_data.json) >> $GITHUB_ENV
+            }' -f org=$ORGANIZATION -F number=$PROJECT_NUMBER > project_data.json
+          echo 'PROJECT_ID='$(jq '.data.organization.projectNext.id' project_data.json) >> $GITHUB_ENV
 
-  - name: 'Add to project'
-    shell: bash
-    run: |
-      gh api graphql -f query='
-        mutation($project:ID!, $id:ID!) {
-          addProjectNextItem(input: {projectId: $project, contentId: $id}) {
-            projectNextItem {
-              id
+    - name: 'Add to project'
+      shell: bash
+      run: |
+        gh api graphql -f query='
+          mutation($project:ID!, $id:ID!) {
+            addProjectNextItem(input: {projectId: $project, contentId: $id}) {
+              projectNextItem {
+                id
+              }
             }
-          }
-        }' -f project=$PROJECT_ID -f id=$TASK_ID --jq '.data.addProjectNextItem.projectNextItem.id'
+          }' -f project=$PROJECT_ID -f id=$TASK_ID --jq '.data.addProjectNextItem.projectNextItem.id'
