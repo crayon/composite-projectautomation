@@ -15,12 +15,12 @@ runs:
   using: "composite"
   env:
     GITHUB_TOKEN: ${{ inputs.repo-token }}
+    ORGANIZATION: 'crayon'
+    PROJECT_NUMBER: ${{ inputs.project_number }}
+    ID: ${{ inputs.id }}
   steps:
   - name: 'Get project data'
     shell: bash
-    env:
-      ORGANIZATION: 'crayon'
-      PROJECT_NUMBER: ${{ inputs.project_number }}
     run: |
         gh api graphql -f query='
           query($org: String!, $number: Int!) {
@@ -41,8 +41,6 @@ runs:
 
   - name: 'Add to project'
     shell: bash
-    env:
-      ID: ${{ inputs.id }}
     run: |
       gh api graphql -f query='
         mutation($project:ID!, $id:ID!) {
