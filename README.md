@@ -6,7 +6,7 @@ In your workflow YAML file, you can define a step using this action like this:
 
 ```yaml
 - name: Project automation
-    if: github.event_name == 'issues'
+    if: github.event_name == 'issues' || github.event_name == 'pull_request'
     uses: crayon/project-github-action@v1.0.0-beta1
     with:
       project_number: 7
