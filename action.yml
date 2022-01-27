@@ -4,6 +4,10 @@ inputs:
   project_number:
     description: 'The ID of the projects you want to use. Can be found in the URL for your project.'
     required: true
+  organization:
+    description: 'The organization that the project that the project_number is referencing is created under. Defaults to the GITHUB_REPOSITORY_OWNER environment variable'
+    default: ${{ env.GITHUB_REPOSITORY_OWNER }}
+    required: false
   task_id:
     description: 'The ID from the issue or pull request.'
     required: true
@@ -17,7 +21,7 @@ runs:
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.repo-token }}
-        ORGANIZATION: 'crayon'
+        ORGANIZATION: ${{ inputs.organization }}
         PROJECT_NUMBER: ${{ inputs.project_number }}
       run: |
           gh api graphql -f query='
