@@ -50,7 +50,7 @@ runs:
         gh api graphql -f query='
           mutation($project:ID!, $id:ID!) {
             addProjectV2ItemById(input: {projectId: $project, contentId: $id}) {
-              projectV2Item {
+              item {
                 id
               }
             }
