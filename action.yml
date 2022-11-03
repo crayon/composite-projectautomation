@@ -30,9 +30,11 @@ runs:
                   id
                   fields(first:20) {
                     nodes {
-                      id
-                      name
-                      settings
+                      ... on ProjectV2Field {
+                        id
+                        name
+                        settings
+                      }
                     }
                   }
                 }
